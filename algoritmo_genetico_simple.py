@@ -26,7 +26,6 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 pool = multiprocessing.Pool()
 toolbox.register("map", pool.map)
 
-
 stats = tools.Statistics(key=lambda ind: ind.fitness.values)
 stats.register("min", np.min)
 stats.register("max", np.max)
@@ -45,10 +44,8 @@ mut = 0.5
 
 log = tools.Logbook()
 
-for gen in range(0, 50):
+for gen in range(0, 10):
     records = stats.compile(pop)
-    log.record(gen=gen, evals=len(pop), **records)
-    print(log.stream)
 
     offsprings = toolbox.select(pop, len(pop))
     
@@ -64,8 +61,10 @@ for gen in range(0, 50):
             del child.fitness.values
     
     invalid_fitness = [ind for ind in offsprings if not ind.fitness.valid]
+    fitness = toolbox.map(toolbox.evaluate, invalid_fitness)
 
-    fitness = map(toolbox.evaluate, invalid_fitness)
+    log.record(gen=gen, evals=len(invalid_fitness), **records)
+    print(log.stream)
 
     for ind, fit in zip(invalid_fitness, fitness):
         ind.fitness.values = fit
